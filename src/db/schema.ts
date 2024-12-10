@@ -93,5 +93,6 @@ export const bids=pgTable('bb_bids',{
         userId: text("userId")
         .notNull()
         .references(() => users.id, { onDelete: "cascade" }),
-        name:text('name').notNull()
+        name:text('name').notNull(),
+        startingPrice:integer('startingPrice').notNull().default(0)
       })
