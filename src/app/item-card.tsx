@@ -1,6 +1,8 @@
 
+import { Button } from "@/components/ui/button";
 import { Item } from "@/db/schema";
 import { getImageUrl } from "@/util/files";
+import { Link } from "lucide-react";
 import  Image from "next/image";
 export function ItemCard({item}: {item:Item}){
     return(
@@ -9,7 +11,11 @@ export function ItemCard({item}: {item:Item}){
             <h2 className="text-xl font-bold ">{item.name}</h2>
 
             <p className="text-lg">startingprice: ${item.startingPrice/100}</p>
-
+            <Button asChild>
+               <Link href={`/items/${item.id}`}>
+               Place bid
+               </Link> 
+            </Button>
           </div>
     )
 }
