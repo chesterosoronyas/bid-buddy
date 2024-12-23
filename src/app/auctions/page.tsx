@@ -24,7 +24,7 @@ export default async function MyAuctionPage() {
   });
   const hasItems = allitems.length > 0;
   return (
-    <main className="container mx-auto py-12 space-y-8">
+    <main className=" space-y-8">
       <h1 className="text-4xl font-bold  ">Your Current Auctions</h1>
       {hasItems ? (
       <div className="grid grid-cols-4 gap-8">

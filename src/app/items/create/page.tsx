@@ -2,11 +2,12 @@
 import { Input } from "@/components/ui/input";
 import { createItemAction,createUploadUrlAction } from "./action";
 import { Button } from "@/components/ui/button";
+import { pageTitle } from "@/styles";
 
 export default function CreatePage(){
     return (
         <main className="container mx-auto py-12 space-y-8">
-        <h1 className="text-4xl font-bold">Post an Item</h1>
+        <h1 className={pageTitle}>Post an Item</h1>
         <form className="flex flex-col border p-8 rounded-xl  space-y-4 max-w-lg"
          onSubmit={async (e) => {
           e.preventDefault();
