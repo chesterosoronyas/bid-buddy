@@ -7,10 +7,8 @@ import {
     integer,serial
   } from "drizzle-orm/pg-core"
   import type { AdapterAccountType } from "next-auth/adapters"
-export const bids=pgTable('bb_bids',{
-        id:serial("id").primaryKey(),
-
-    })
+  import { relations } from "drizzle-orm";
+     
 
     export const users = pgTable("bb_user", {
         id: text("id")
@@ -95,8 +93,29 @@ export const bids=pgTable('bb_bids',{
         .references(() => users.id, { onDelete: "cascade" }),
         name:text('name').notNull(),
         fileKey:text('fileKey').notNull(),
+        currentBid:integer("currentBid").notNull().default(0),
         startingPrice:integer('startingPrice').notNull().default(0),
         bidInterval:integer('bidInterval').notNull().default(100)
       })
+      export const bids=pgTable('bb_bids',{
+        id:serial("id").primaryKey(),
+        amount:integer('amount').notNull(),
+        
+        itemId: serial("itemId")
+        .notNull()
+        .references(() => items.id, { onDelete: "cascade" }),
+        userId: text("userId")
+        .notNull()
+        .references(() => users.id, { onDelete: "cascade" }),
+        timestamp:timestamp("timestamp",{mode:"date"}).notNull(),
+
+    })
+
+    export const usersRelations = relations(bids, ({ one }) => ({
+      user: one(users, {
+        fields: [bids.userId],
+        references: [users.id],
+      }),
+    }));
 
       export type Item=typeof items.$inferSelect;

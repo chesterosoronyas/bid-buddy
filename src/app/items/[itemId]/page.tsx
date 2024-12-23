@@ -1,25 +1,27 @@
 import { Button } from "@/components/ui/button";
-import { database } from "@/db/database";
-import { items } from "@/db/schema";
 import { pageTitle } from "@/styles";
-import { eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import Link from "next/link";
 import Image from "next/image";
 import { getImageUrl } from "@/util/files";
 import { timestamp } from "drizzle-orm/pg-core";
 import { formatDistance } from "date-fns";
 import { formatToDollar } from "@/util/currency";
+import { createBidAction } from "./actions";
+import { getBidsForItem } from "@/data-access/bids";
+import { getItem } from "@/data-access/items";
 function formatTimestamp(timestamp: Date) {
-    return formatDistance(timestamp, new Date(), { addSuffix: true });
-  }
+  return formatDistance(timestamp, new Date(), { addSuffix: true });
+}
 export default async function ItemPage({
   params: { itemId },
 }: {
   params: { itemId: string };
 }) {
-  const item = await database.query.items.findFirst({
+  const item = await getItem(parseInt(itemId));
+  /*const item = await database.query.items.findFirst({
     where: eq(items.id, parseInt(itemId)),
-  });
+  });*/
 
   if (!item) {
     return (
@@ -39,28 +41,42 @@ export default async function ItemPage({
       </div>
     );
   }
-  const bids=[
+  /*const bids = [
     {
-        id:1,
-        amount:100,
-        userName:"Alice",
-        timestamp:new Date()
+      id: 1,
+      amount: 100,
+      userName: "Alice",
+      timestamp: new Date(),
     },
     {
-        id:2,
-        amount:200,
-        userName:"Bob",
-        timestamp:new Date()
+      id: 2,
+      amount: 200,
+      userName: "Bob",
+      timestamp: new Date(),
     },
     {
-        id:3,
-        amount:300,
-        userName:"Charlie",
-        timestamp:new Date()
-    }
+      id: 3,
+      amount: 300,
+      userName: "Charlie",
+      timestamp: new Date(),
+    },
+  ]; */
 
-  ]
-  const hasBids=bids.length;
+
+  /*const allBids=await database.query.bids.findMany({
+    where:eq(bids.itemId,parseInt(itemId)),
+    orderBy:desc(bids.id),
+    with:{
+      user:{
+        columns:{
+          image:true,
+          name:true
+        }
+      }
+    }
+  })*/
+  const allBids = await getBidsForItem(item.id);
+  const hasBids = allBids.length>0;
   return (
     <main className="space-y-8">
       <div className="flex gap-8">
@@ -75,45 +91,61 @@ export default async function ItemPage({
             width={400}
             height={400}
           />
-          
+
           <div className="text-xl space-y-4">
-            <div>
-            Starting Price of{" "}
-            <span className="font-bold">${formatToDollar(item.startingPrice)}</span>
+          <div>
+              Current Bid{" "}
+              <span className="font-bold">
+                ${formatToDollar(item.currentBid)}
+              </span>
             </div>
-             <div>Bid interval  <span className="font-bold">{formatToDollar(item.bidInterval)}</span></div>
-           
-            
+            <div>
+              Starting Price of{" "}
+              <span className="font-bold">
+                ${formatToDollar(item.startingPrice)}
+              </span>
+            </div>
+            <div>
+              Bid interval{" "}
+              <span className="font-bold">
+                ${formatToDollar(item.bidInterval)}
+              </span>
+            </div>
           </div>
         </div>
         <div className="space-y-4 flex-1">
+        <div className="flex justify-between">
           <h2 className="text-2xl font-bold">Current Bids</h2>
-          {hasBids? (
+          <form action={createBidAction.bind(null,item.id)}>
+                <Button>Place bid</Button>
+           </form>
+           </div>
+          {hasBids ? (
             <ul className="space-y-4">
-            {bids.map((bid) => (
-              <li key={bid.id} className="bg-gray-100 rounded-xl-xl p-8 ">
-                <div className="flex gap-4">
-                 <div>
-                  <span className="font-bold">${bid.amount}</span> by {" "}
-                  <span className="font-bold">{bid.userName}</span>
+              {allBids.map((bid) => (
+                <li key={bid.id} className="bg-gray-100 rounded-xl-xl p-8 ">
+                  <div className="flex gap-4">
+                    <div>
+                      <span className="font-bold">${formatToDollar(bid.amount)}</span> by{" "}
+                      <span className="font-bold">{bid.user.name}</span>
+                    </div>
+                    <div className="">{formatTimestamp(bid.timestamp)}</div>
                   </div>
-                  <div className="">{formatTimestamp(bid.timestamp)}</div>
-                </div>
-              </li>
-            ))}
-          </ul>
-          ):(
-            <div className="flex flex-col items-center gap-8 bg-gray-100 rounded-xl p-12 "> 
-            <Image src="/package.svg" width="200" height="200" alt="Package" />
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div className="flex flex-col items-center gap-8 bg-gray-100 rounded-xl p-12 ">
+              <Image
+                src="/package.svg"
+                width="200"
+                height="200"
+                alt="Package"
+              />
               <h2 className="text-2xl font-bold ">No Bids yet</h2>
-              <Button asChild>
-               <Link href={`/items/${item.id}`}>
-               Place bid
-               </Link> 
-            </Button>
-              </div>
+             
+            </div>
           )}
-          
         </div>
       </div>
     </main>
