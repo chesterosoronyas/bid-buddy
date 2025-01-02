@@ -7,7 +7,12 @@ const nextConfig: NextConfig = {
       hostname:'pub-2a2677c8f20d45d49d89c940b2ab02ae.r2.dev',
       protocol:"https",
       port:""
-    }]
+    },
+    {
+      hostname: "lh3.googleusercontent.com",
+      protocol: "https",
+      port: "",
+    },]
   }
 };
 

@@ -1,6 +1,8 @@
 import { database } from "@/db/database";
 import { bids } from "@/db/schema";
 import { desc, eq } from "drizzle-orm";
+import { Item } from "@/db/schema";
+
 
 export async function getBidsForItem(itemId: number) {
   const allBids = await database.query.bids.findMany({
@@ -16,4 +18,9 @@ export async function getBidsForItem(itemId: number) {
     },
   });
   return allBids;
+}
+
+
+export function isBidOver(item: Item) {
+  return item.endDate < new Date();
 }
